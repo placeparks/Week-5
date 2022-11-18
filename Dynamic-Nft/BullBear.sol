@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
@@ -12,6 +13,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+
 
 import "hardhat/console.sol";
 
@@ -31,10 +33,11 @@ contract BullBear is
 
     uint[] public s_randomWords;
     uint public s_requestId;
-    uint32 public callbackGasLimit = 500000;
-    uint64 public s_subscriptionId;
+    uint32 public callbackGasLimit = 500000 ;
+    //uint64 public s_subscriptionId;
+    uint64 private s_subscriptionId;
     bytes32 keyhash =
-       0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f ; //I used Polygon-Mumbai testnet...
+      0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
 
     uint public interval;
     uint public lastTimeStamp;
@@ -63,11 +66,14 @@ contract BullBear is
     constructor(
         uint updateInterval,
         address _priceFeed,
-        address _vrfCoordinator
+        address _vrfCoordinator,
+        // bytes32 keyHash, // keyHash
+       // uint256 interval,
+               uint32 callbackGasLimit
     ) ERC721("Bull&Bear", "BBTK") VRFConsumerBaseV2(_vrfCoordinator) {
         interval = updateInterval;
         lastTimeStamp = block.timestamp;
-
+        s_subscriptionId = s_subscriptionId;
         pricefeed = AggregatorV3Interface(_priceFeed);
 
         currentPrice = getLatestPrice();
@@ -151,10 +157,10 @@ contract BullBear is
         string[] memory urisForTrend = currentMarketTrend == MarketTrend.BULL
             ? bullUrisIpfs
             : bearUrisIpfs;
-        uint idx = randomWords[0] % urisForTrend.length;
+        uint index = randomWords[0] % urisForTrend.length;
 
         for (uint i = 0; i < _tokenIdCounter.current(); i++) {
-            _setTokenURI(i, urisForTrend[idx]);
+            _setTokenURI(i, urisForTrend[index]);
         }
 
         string memory trend = currentMarketTrend == MarketTrend.BULL
@@ -227,4 +233,4 @@ contract BullBear is
     {
         return super.supportsInterface(interfaceId);
     }
-}
+}  
